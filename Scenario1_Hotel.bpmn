@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.49.0">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Guest submits booking request">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_CheckRoom" name="System checks availability">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_Avail" name="Rooms available?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Avail_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Avail_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_NotifyFull" name="Notify guest: No rooms">
+      <bpmn:incoming>Flow_Avail_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_1</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_1">
+      <bpmn:incoming>Flow_End_1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_ReqPay" name="Request payment">
+      <bpmn:incoming>Flow_Avail_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_Pay" name="Payment successful?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Pay_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Pay_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_NotifyFail" name="Notify guest: Payment failure">
+      <bpmn:incoming>Flow_Pay_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_2">
+      <bpmn:incoming>Flow_End_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_Confirm" name="Confirm booking &#38; generate ref">
+      <bpmn:incoming>Flow_Pay_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SendEmail" name="Send confirmation email">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_3">
+      <bpmn:incoming>Flow_End_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_CheckRoom" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CheckRoom" targetRef="GW_Avail" />
+    <bpmn:sequenceFlow id="Flow_Avail_No" name="No" sourceRef="GW_Avail" targetRef="Task_NotifyFull" />
+    <bpmn:sequenceFlow id="Flow_Avail_Yes" name="Yes" sourceRef="GW_Avail" targetRef="Task_ReqPay" />
+    <bpmn:sequenceFlow id="Flow_End_1" sourceRef="Task_NotifyFull" targetRef="End_1" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_ReqPay" targetRef="GW_Pay" />
+    <bpmn:sequenceFlow id="Flow_Pay_No" name="No" sourceRef="GW_Pay" targetRef="Task_NotifyFail" />
+    <bpmn:sequenceFlow id="Flow_Pay_Yes" name="Yes" sourceRef="GW_Pay" targetRef="Task_Confirm" />
+    <bpmn:sequenceFlow id="Flow_End_2" sourceRef="Task_NotifyFail" targetRef="End_2" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Confirm" targetRef="Task_SendEmail" />
+    <bpmn:sequenceFlow id="Flow_End_3" sourceRef="Task_SendEmail" targetRef="End_3" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckRoom_di" bpmnElement="Task_CheckRoom">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Avail_di" bpmnElement="GW_Avail" isMarkerVisible="true">
+        <dc:Bounds x="395" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="376" y="71" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReqPay_di" bpmnElement="Task_ReqPay">
+        <dc:Bounds x="500" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Pay_di" bpmnElement="GW_Pay" isMarkerVisible="true">
+        <dc:Bounds x="655" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyFail_di" bpmnElement="Task_NotifyFail">
+        <dc:Bounds x="760" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_2_di" bpmnElement="End_2">
+        <dc:Bounds x="912" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Confirm_di" bpmnElement="Task_Confirm">
+        <dc:Bounds x="760" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendEmail_di" bpmnElement="Task_SendEmail">
+        <dc:Bounds x="910" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_3_di" bpmnElement="End_3">
+        <dc:Bounds x="1062" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyFull_di" bpmnElement="Task_NotifyFull">
+        <dc:Bounds x="470" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_1_di" bpmnElement="End_1">
+        <dc:Bounds x="622" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="395" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Avail_No_di" bpmnElement="Flow_Avail_No">
+        <di:waypoint x="420" y="145" />
+        <di:waypoint x="420" y="250" />
+        <di:waypoint x="470" y="250" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="428" y="188" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Avail_Yes_di" bpmnElement="Flow_Avail_Yes">
+        <di:waypoint x="445" y="120" />
+        <di:waypoint x="500" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_1_di" bpmnElement="Flow_End_1">
+        <di:waypoint x="570" y="250" />
+        <di:waypoint x="622" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="600" y="120" />
+        <di:waypoint x="655" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Pay_No_di" bpmnElement="Flow_Pay_No">
+        <di:waypoint x="680" y="145" />
+        <di:waypoint x="680" y="250" />
+        <di:waypoint x="760" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Pay_Yes_di" bpmnElement="Flow_Pay_Yes">
+        <di:waypoint x="705" y="120" />
+        <di:waypoint x="760" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_2_di" bpmnElement="Flow_End_2">
+        <di:waypoint x="860" y="250" />
+        <di:waypoint x="912" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="860" y="120" />
+        <di:waypoint x="910" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_3_di" bpmnElement="Flow_End_3">
+        <di:waypoint x="1010" y="120" />
+        <di:waypoint x="1062" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

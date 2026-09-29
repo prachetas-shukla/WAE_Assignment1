@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.49.0">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Customer submits loan app">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_Verify" name="System verifies docs &#38; score">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_Docs" name="Docs valid?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Docs_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Docs_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_RejectDocs" name="Reject &#38; notify: Invalid docs">
+      <bpmn:incoming>Flow_Docs_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_1</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_1">
+      <bpmn:incoming>Flow_End_1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_CheckElig" name="Check eligibility">
+      <bpmn:incoming>Flow_Docs_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_Elig" name="Eligible?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Elig_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Elig_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_RejectElig" name="Reject &#38; notify: Not eligible">
+      <bpmn:incoming>Flow_Elig_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_2">
+      <bpmn:incoming>Flow_End_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_Forward" name="Forward to loan officer">
+      <bpmn:incoming>Flow_Elig_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="GW_Approve" name="Officer approves?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_App_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_App_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_RejectFinal" name="Reject &#38; notify customer">
+      <bpmn:incoming>Flow_App_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_3">
+      <bpmn:incoming>Flow_End_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_Disburse" name="Disburse loan &#38; send approval">
+      <bpmn:incoming>Flow_App_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_4">
+      <bpmn:incoming>Flow_End_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Verify" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Verify" targetRef="GW_Docs" />
+    <bpmn:sequenceFlow id="Flow_Docs_No" name="No" sourceRef="GW_Docs" targetRef="Task_RejectDocs" />
+    <bpmn:sequenceFlow id="Flow_Docs_Yes" name="Yes" sourceRef="GW_Docs" targetRef="Task_CheckElig" />
+    <bpmn:sequenceFlow id="Flow_End_1" sourceRef="Task_RejectDocs" targetRef="End_1" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_CheckElig" targetRef="GW_Elig" />
+    <bpmn:sequenceFlow id="Flow_Elig_No" name="No" sourceRef="GW_Elig" targetRef="Task_RejectElig" />
+    <bpmn:sequenceFlow id="Flow_Elig_Yes" name="Yes" sourceRef="GW_Elig" targetRef="Task_Forward" />
+    <bpmn:sequenceFlow id="Flow_End_2" sourceRef="Task_RejectElig" targetRef="End_2" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Forward" targetRef="GW_Approve" />
+    <bpmn:sequenceFlow id="Flow_App_No" name="No" sourceRef="GW_Approve" targetRef="Task_RejectFinal" />
+    <bpmn:sequenceFlow id="Flow_App_Yes" name="Yes" sourceRef="GW_Approve" targetRef="Task_Disburse" />
+    <bpmn:sequenceFlow id="Flow_End_3" sourceRef="Task_RejectFinal" targetRef="End_3" />
+    <bpmn:sequenceFlow id="Flow_End_4" sourceRef="Task_Disburse" targetRef="End_4" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Verify_di" bpmnElement="Task_Verify">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Docs_di" bpmnElement="GW_Docs" isMarkerVisible="true">
+        <dc:Bounds x="395" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="391" y="71" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckElig_di" bpmnElement="Task_CheckElig">
+        <dc:Bounds x="500" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Elig_di" bpmnElement="GW_Elig" isMarkerVisible="true">
+        <dc:Bounds x="655" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="659" y="71" width="42" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Forward_di" bpmnElement="Task_Forward">
+        <dc:Bounds x="760" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Approve_di" bpmnElement="GW_Approve" isMarkerVisible="true">
+        <dc:Bounds x="915" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RejectFinal_di" bpmnElement="Task_RejectFinal">
+        <dc:Bounds x="1020" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_3_di" bpmnElement="End_3">
+        <dc:Bounds x="1172" y="232" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Disburse_di" bpmnElement="Task_Disburse">
+        <dc:Bounds x="1020" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_4_di" bpmnElement="End_4">
+        <dc:Bounds x="1172" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RejectDocs_di" bpmnElement="Task_RejectDocs">
+        <dc:Bounds x="360" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_1_di" bpmnElement="End_1">
+        <dc:Bounds x="632" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RejectElig_di" bpmnElement="Task_RejectElig">
+        <dc:Bounds x="730" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_2_di" bpmnElement="End_2">
+        <dc:Bounds x="872" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="395" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Docs_No_di" bpmnElement="Flow_Docs_No">
+        <di:waypoint x="420" y="145" />
+        <di:waypoint x="420" y="208" />
+        <di:waypoint x="410" y="208" />
+        <di:waypoint x="410" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="402" y="188" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Docs_Yes_di" bpmnElement="Flow_Docs_Yes">
+        <di:waypoint x="445" y="120" />
+        <di:waypoint x="500" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_1_di" bpmnElement="Flow_End_1">
+        <di:waypoint x="460" y="310" />
+        <di:waypoint x="556" y="310" />
+        <di:waypoint x="556" y="280" />
+        <di:waypoint x="632" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="600" y="120" />
+        <di:waypoint x="655" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Elig_No_di" bpmnElement="Flow_Elig_No">
+        <di:waypoint x="680" y="145" />
+        <di:waypoint x="680" y="240" />
+        <di:waypoint x="730" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="688" y="183" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Elig_Yes_di" bpmnElement="Flow_Elig_Yes">
+        <di:waypoint x="705" y="120" />
+        <di:waypoint x="760" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_2_di" bpmnElement="Flow_End_2">
+        <di:waypoint x="830" y="240" />
+        <di:waypoint x="851" y="240" />
+        <di:waypoint x="851" y="270" />
+        <di:waypoint x="872" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="860" y="120" />
+        <di:waypoint x="915" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_App_No_di" bpmnElement="Flow_App_No">
+        <di:waypoint x="940" y="145" />
+        <di:waypoint x="940" y="250" />
+        <di:waypoint x="1020" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_App_Yes_di" bpmnElement="Flow_App_Yes">
+        <di:waypoint x="965" y="120" />
+        <di:waypoint x="1020" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_3_di" bpmnElement="Flow_End_3">
+        <di:waypoint x="1120" y="250" />
+        <di:waypoint x="1172" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_4_di" bpmnElement="Flow_End_4">
+        <di:waypoint x="1120" y="120" />
+        <di:waypoint x="1172" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
